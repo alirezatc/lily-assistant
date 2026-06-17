@@ -1,31 +1,11 @@
-import { eq } from "drizzle-orm";
-import { db, schema } from "@/lib/db";
-import { OWNER_ID } from "@/lib/owner";
-import { momOwesNilou, formatCents, type ExpenseRecord } from "@/lib/money";
+import { formatCents } from "@/lib/money";
+import { getSettlementBalance } from "@/lib/queries";
 import RepaymentForm from "./RepaymentForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettlementsPage() {
-  let balance = 0;
-  let configured = false;
-
-  if (db) {
-    configured = true;
-    const exps = await db.select().from(schema.expenses).where(eq(schema.expenses.ownerId, OWNER_ID));
-    const reps = await db.select().from(schema.repayments).where(eq(schema.repayments.ownerId, OWNER_ID));
-    const records: ExpenseRecord[] = exps.map((e: typeof schema.expenses.$inferSelect) => ({
-      amountCents: e.amountCents,
-      responsibility: e.responsibility as ExpenseRecord["responsibility"],
-      paidBy: e.paidBy as ExpenseRecord["paidBy"],
-      householdMomShare: e.householdMomShareBp ? e.householdMomShareBp / 10000 : undefined,
-    }));
-    balance = momOwesNilou(
-      records,
-      reps.map((r: typeof schema.repayments.$inferSelect) => ({ amountCents: r.amountCents })),
-    );
-  }
-
+  const { configured, balance } = await getSettlementBalance();
   return (
     <main className="space-y-5 p-4">
       <h1 className="pt-2 text-2xl font-semibold">Settlements</h1>
