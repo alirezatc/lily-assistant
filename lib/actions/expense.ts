@@ -1,7 +1,7 @@
 "use server";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db, schema } from "@/lib/db";
+import { OWNER_ID } from "@/lib/owner";
 import type { Responsibility } from "@/lib/money";
 
 export interface ExpenseInput {
@@ -16,11 +16,9 @@ export interface ExpenseInput {
 }
 
 export async function saveExpense(input: ExpenseInput) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Not authenticated");
   if (!db) throw new Error("Database not configured (set DATABASE_URL)");
   await db.insert(schema.expenses).values({
-    ownerId: userId,
+    ownerId: OWNER_ID,
     occurredOn: input.occurredOn ?? new Date().toISOString().slice(0, 10),
     amountCents: input.amountCents,
     category: input.category,
@@ -36,11 +34,9 @@ export async function saveExpense(input: ExpenseInput) {
 }
 
 export async function saveRepayment(amountCents: number, occurredOn?: string, notes?: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Not authenticated");
   if (!db) throw new Error("Database not configured (set DATABASE_URL)");
   await db.insert(schema.repayments).values({
-    ownerId: userId,
+    ownerId: OWNER_ID,
     fromPerson: "mom",
     amountCents,
     occurredOn: occurredOn ?? new Date().toISOString().slice(0, 10),

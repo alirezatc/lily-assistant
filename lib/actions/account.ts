@@ -1,7 +1,7 @@
 "use server";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db, schema } from "@/lib/db";
+import { OWNER_ID } from "@/lib/owner";
 
 export interface AccountInput {
   name: string;
@@ -18,10 +18,8 @@ export interface AccountInput {
 }
 
 export async function saveAccount(input: AccountInput) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Not authenticated");
   if (!db) throw new Error("Database not configured (set DATABASE_URL)");
-  await db.insert(schema.creditAccounts).values({ ownerId: userId, ...input });
+  await db.insert(schema.creditAccounts).values({ ownerId: OWNER_ID, ...input });
   revalidatePath("/accounts");
   revalidatePath("/");
 }

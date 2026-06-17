@@ -1,25 +1,23 @@
 "use server";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { db, schema } from "@/lib/db";
+import { OWNER_ID } from "@/lib/owner";
 
 export interface IncomeInput {
   business: "tobacco" | "card_night" | "dealer" | "misc";
   netCents: number;
   grossCents?: number;
-  occurredOn?: string; // ISO date; defaults today
+  occurredOn?: string;
   sessionId?: number;
   detail?: unknown;
   notes?: string;
 }
 
 export async function saveIncome(input: IncomeInput) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Not authenticated");
   if (!db) throw new Error("Database not configured (set DATABASE_URL)");
   const occurredOn = input.occurredOn ?? new Date().toISOString().slice(0, 10);
   await db.insert(schema.incomeEvents).values({
-    ownerId: userId,
+    ownerId: OWNER_ID,
     business: input.business,
     occurredOn,
     grossCents: input.grossCents ?? 0,
