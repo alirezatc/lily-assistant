@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { db, schema } from "@/lib/db";
 import { OWNER_ID } from "@/lib/owner";
+import type { SaveResult } from "./types";
 
 export interface AccountInput {
   name: string;
@@ -17,9 +18,14 @@ export interface AccountInput {
   notes?: string;
 }
 
-export async function saveAccount(input: AccountInput) {
-  if (!db) throw new Error("Database not configured (set DATABASE_URL)");
-  await db.insert(schema.creditAccounts).values({ ownerId: OWNER_ID, ...input });
-  revalidatePath("/accounts");
-  revalidatePath("/");
+export async function saveAccount(input: AccountInput): Promise<SaveResult> {
+  if (!db) return { ok: false, error: "no_db" };
+  try {
+    await db.insert(schema.creditAccounts).values({ ownerId: OWNER_ID, ...input });
+    revalidatePath("/accounts");
+    revalidatePath("/");
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "db_error" };
+  }
 }
