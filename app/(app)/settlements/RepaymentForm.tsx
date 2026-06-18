@@ -12,7 +12,7 @@ export default function RepaymentForm() {
   const { status, pending, run } = useSubmit();
   return (
     <form onSubmit={(e) => { e.preventDefault(); run(() => saveRepayment(cents(amount)), "Repayment recorded ✓"); }}
-      className="space-y-3 rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
+      className="space-y-3 rounded-2xl glass p-4">
       <MoneyField label="Repayment amount" value={amount} onChange={setAmount} />
       <StatusNote status={status} />
       <PrimaryButton pending={pending}>{pending ? "Saving…" : "Record repayment"}</PrimaryButton>

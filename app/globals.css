@@ -4,9 +4,25 @@
 
 :root { color-scheme: light; }
 html, body { height: 100%; }
+
 body {
   @apply text-gray-800 antialiased;
-  background:
-    radial-gradient(1200px 600px at 50% -10%, #ffe3ef 0%, rgba(255,227,239,0) 60%),
-    #fff5f9;
+  background-color: #fff5fa;
+  background-image:
+    radial-gradient(38rem 38rem at 8% -8%, rgba(255,143,192,0.45), transparent 60%),
+    radial-gradient(34rem 34rem at 108% 4%, rgba(199,30,106,0.20), transparent 55%),
+    radial-gradient(40rem 40rem at 50% 118%, rgba(255,180,214,0.40), transparent 60%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  /* frosted glass surface */
+  .glass {
+    @apply border border-white/60 bg-white/55 backdrop-blur-xl;
+    box-shadow: 0 8px 30px -12px rgba(200,30,106,0.28);
+  }
+  .glass-strong {
+    @apply border border-white/70 bg-white/75 backdrop-blur-xl;
+    box-shadow: 0 8px 30px -12px rgba(200,30,106,0.22);
+  }
 }

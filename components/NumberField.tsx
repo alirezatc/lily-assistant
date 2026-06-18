@@ -13,7 +13,7 @@ export default function NumberField({
   return (
     <label className="block text-sm font-semibold text-gray-700">
       {label}
-      <div className="mt-1 flex items-center rounded-2xl border border-pink-100 bg-white shadow-sm focus-within:border-brand">
+      <div className="mt-1 flex items-center rounded-2xl glass focus-within:border-brand">
         <input
           type="text"
           inputMode="numeric"

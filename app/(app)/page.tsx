@@ -24,19 +24,19 @@ export default async function Dashboard() {
 
       <section className="grid grid-cols-2 gap-3">
         {data.monthByBusiness.map((b) => (
-          <div key={b.label} className="rounded-2xl border border-pink-100 bg-white p-3 shadow-sm">
+          <div key={b.label} className="rounded-2xl glass p-3">
             <p className="text-xs font-medium text-gray-400">{b.label}</p>
             <p className="text-lg font-bold text-gray-800">{formatCents(b.cents)}</p>
           </div>
         ))}
       </section>
 
-      <Link href="/settlements" className="block rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
+      <Link href="/settlements" className="block rounded-2xl glass p-4">
         <p className="text-xs font-medium text-gray-400">Mom owes you</p>
         <p className="text-2xl font-extrabold text-brand">{formatCents(data.momOwes)}</p>
       </Link>
 
-      <section className="rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
+      <section className="rounded-2xl glass p-4">
         <p className="mb-2 text-sm font-bold text-gray-700">Due this week</p>
         {data.dueSoon.length === 0 ? (
           <p className="text-sm text-gray-400">Nothing due in the next 7 days 🎉</p>

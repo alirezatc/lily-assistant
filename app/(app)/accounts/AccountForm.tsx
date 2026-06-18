@@ -38,7 +38,7 @@ export default function AccountForm() {
           creditLimitCents: centsOrUndef(limit), currentBalanceCents: centsOrUndef(balance),
           dueDay: Math.min(31, Math.max(1, Math.round(num(dueDay)) || 1)),
         }), "Card added ✓"); }}
-      className="space-y-3 rounded-2xl border border-pink-100 bg-white p-4 shadow-sm"
+      className="space-y-3 rounded-2xl glass p-4"
     >
       <label className="block text-sm font-semibold text-gray-700">
         Nickname

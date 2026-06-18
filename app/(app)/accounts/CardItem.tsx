@@ -25,7 +25,7 @@ export default function CardItem({ card }: { card: Card }) {
   const { status, pending, run } = useSubmit();
 
   return (
-    <li className="rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
+    <li className="rounded-2xl glass p-4">
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <p className="font-bold text-gray-800">{card.name}</p>

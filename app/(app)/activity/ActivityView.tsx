@@ -31,11 +31,11 @@ export default function ActivityView({ rows }: { rows: ActivityRow[] }) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-pink-100 bg-white p-3 shadow-sm">
+        <div className="rounded-2xl glass p-3">
           <p className="text-xs font-medium text-gray-400">Made</p>
           <p className="text-lg font-bold text-emerald-600">{formatCents(made)}</p>
         </div>
-        <div className="rounded-2xl border border-pink-100 bg-white p-3 shadow-sm">
+        <div className="rounded-2xl glass p-3">
           <p className="text-xs font-medium text-gray-400">Spent</p>
           <p className="text-lg font-bold text-brand-deep">{formatCents(spent)}</p>
         </div>
@@ -44,7 +44,7 @@ export default function ActivityView({ rows }: { rows: ActivityRow[] }) {
       {filtered.length === 0 ? (
         <p className="rounded-2xl bg-white p-4 text-sm text-gray-400 shadow-sm">No activity in this range.</p>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-pink-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl glass">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-pink-100 text-left text-xs text-gray-400">

@@ -17,7 +17,7 @@ export default function BusinessLabelsForm({ labels }: { labels: Record<string, 
   const { status, pending, run } = useSubmit();
   return (
     <form onSubmit={(e) => { e.preventDefault(); run(() => saveBusinessLabels(vals), "Names saved ✓"); }}
-      className="space-y-3 rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
+      className="space-y-3 rounded-2xl glass p-4">
       {fields.map((f) => (
         <label key={f.key} className="block text-sm font-semibold text-gray-700">
           {f.key.replace("_", " ")}

@@ -15,7 +15,7 @@ const items = [
 export default function BottomNav() {
   const path = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-pink-100 bg-white/90 backdrop-blur pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md glass border-t border-white/40 pb-[env(safe-area-inset-bottom)]">
       <ul className="flex justify-around">
         {items.map(({ href, label, Icon }) => {
           const active = href === "/" ? path === "/" : path.startsWith(href);
