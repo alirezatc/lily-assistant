@@ -1,7 +1,11 @@
 "use client";
 import { useState } from "react";
+import MoneyField from "@/components/MoneyField";
+import NumberField from "@/components/NumberField";
 import StatusNote from "@/components/StatusNote";
+import PrimaryButton from "@/components/PrimaryButton";
 import { useSubmit } from "@/components/useSubmit";
+import { cents, num } from "@/lib/num";
 import { saveAccount } from "@/lib/actions/account";
 
 export default function AccountForm() {
@@ -9,77 +13,56 @@ export default function AccountForm() {
   const [name, setName] = useState("");
   const [type, setType] = useState<"credit_card" | "line_of_credit">("credit_card");
   const [last4, setLast4] = useState("");
-  const [limit, setLimit] = useState(0);
-  const [balance, setBalance] = useState(0);
-  const [dueDay, setDueDay] = useState(1);
+  const [limit, setLimit] = useState("");
+  const [balance, setBalance] = useState("");
+  const [dueDay, setDueDay] = useState("1");
   const { status, pending, run } = useSubmit();
 
   if (!open) {
     return (
       <button onClick={() => setOpen(true)}
-        className="w-full rounded-xl border border-dashed border-gray-300 p-4 text-sm font-medium text-gray-600 active:bg-gray-100">
+        className="w-full rounded-2xl border-2 border-dashed border-pink-200 p-4 text-sm font-bold text-brand active:bg-brand-soft">
         + Add a card or line of credit
       </button>
     );
   }
 
+  const pill = (on: boolean) =>
+    `rounded-2xl p-3 text-sm font-bold transition ${on ? "bg-brand text-brand-fg shadow-soft" : "bg-white text-gray-500 border border-pink-100"}`;
+
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        run(
-          () => saveAccount({
-            name, type, last4: last4 || undefined,
-            creditLimitCents: Math.round(limit * 100),
-            currentBalanceCents: Math.round(balance * 100),
-            dueDay,
-          }),
-          "Account added ✓",
-        );
-      }}
-      className="space-y-3 rounded-xl border bg-white p-4"
+      onSubmit={(e) => { e.preventDefault();
+        run(() => saveAccount({
+          name: name || "My card", type, last4: last4 || undefined,
+          creditLimitCents: cents(limit), currentBalanceCents: cents(balance),
+          dueDay: Math.min(31, Math.max(1, Math.round(num(dueDay)) || 1)),
+        }), "Card added ✓"); }}
+      className="space-y-3 rounded-2xl border border-pink-100 bg-white p-4 shadow-sm"
     >
-      <label className="block text-sm font-medium text-gray-700">
-        Name
-        <input required className="mt-1 w-full rounded-lg border p-3 text-lg" placeholder="e.g. Visa Rewards"
-          value={name} onChange={(e) => setName(e.target.value)} />
+      <label className="block text-sm font-semibold text-gray-700">
+        Nickname
+        <input required className="mt-1 w-full rounded-2xl border border-pink-100 p-3 text-lg outline-none focus:border-brand"
+          placeholder="e.g. My pink Visa 💕" value={name} onChange={(e) => setName(e.target.value)} />
       </label>
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" onClick={() => setType("credit_card")}
-          className={`rounded-lg p-3 text-sm font-medium ${type === "credit_card" ? "bg-brand text-brand-fg" : "bg-gray-100 text-gray-600"}`}>Credit card</button>
-        <button type="button" onClick={() => setType("line_of_credit")}
-          className={`rounded-lg p-3 text-sm font-medium ${type === "line_of_credit" ? "bg-brand text-brand-fg" : "bg-gray-100 text-gray-600"}`}>Line of credit</button>
+        <button type="button" onClick={() => setType("credit_card")} className={pill(type === "credit_card")}>Credit card</button>
+        <button type="button" onClick={() => setType("line_of_credit")} className={pill(type === "line_of_credit")}>Line of credit</button>
       </div>
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-semibold text-gray-700">
         Last 4 digits
-        <input inputMode="numeric" maxLength={4} className="mt-1 w-full rounded-lg border p-3 text-lg" placeholder="1234"
-          value={last4} onChange={(e) => setLast4(e.target.value.replace(/\D/g, "").slice(0, 4))} />
+        <input inputMode="numeric" maxLength={4} className="mt-1 w-full rounded-2xl border border-pink-100 p-3 text-lg outline-none focus:border-brand"
+          placeholder="1234" value={last4} onChange={(e) => setLast4(e.target.value.replace(/\D/g, "").slice(0, 4))} />
       </label>
       <div className="grid grid-cols-2 gap-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Limit ($)
-          <input type="number" inputMode="decimal" className="mt-1 w-full rounded-lg border p-3 text-lg"
-            value={limit} onChange={(e) => setLimit(Number(e.target.value))} />
-        </label>
-        <label className="block text-sm font-medium text-gray-700">
-          Balance ($)
-          <input type="number" inputMode="decimal" className="mt-1 w-full rounded-lg border p-3 text-lg"
-            value={balance} onChange={(e) => setBalance(Number(e.target.value))} />
-        </label>
+        <MoneyField label="Limit" value={limit} onChange={setLimit} />
+        <MoneyField label="Balance" value={balance} onChange={setBalance} />
       </div>
-      <label className="block text-sm font-medium text-gray-700">
-        Due day of month (1–31)
-        <input type="number" inputMode="numeric" min={1} max={31} className="mt-1 w-full rounded-lg border p-3 text-lg"
-          value={dueDay} onChange={(e) => setDueDay(Math.min(31, Math.max(1, Number(e.target.value))))} />
-      </label>
+      <NumberField label="Due day of month" value={dueDay} onChange={setDueDay} min={1} max={31} placeholder="1" />
       <StatusNote status={status} />
       <div className="grid grid-cols-2 gap-2">
-        <button type="button" onClick={() => setOpen(false)}
-          className="rounded-xl bg-gray-100 p-3 font-semibold text-gray-700">Cancel</button>
-        <button disabled={pending}
-          className="rounded-xl bg-brand p-3 font-semibold text-brand-fg disabled:opacity-50">
-          {pending ? "Saving…" : "Add"}
-        </button>
+        <button type="button" onClick={() => setOpen(false)} className="rounded-2xl bg-gray-100 p-3 font-bold text-gray-600">Cancel</button>
+        <PrimaryButton pending={pending}>{pending ? "Saving…" : "Add"}</PrimaryButton>
       </div>
     </form>
   );

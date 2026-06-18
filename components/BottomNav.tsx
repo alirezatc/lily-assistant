@@ -1,28 +1,36 @@
+"use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, PlusCircle, Receipt, ListOrdered, CreditCard, HeartHandshake } from "lucide-react";
 
 const items = [
-  { href: "/", label: "Home", icon: "🏠" },
-  { href: "/income", label: "Income", icon: "💵" },
-  { href: "/expenses", label: "Expenses", icon: "🧾" },
-  { href: "/accounts", label: "Cards", icon: "💳" },
-  { href: "/settlements", label: "Owed", icon: "🤝" },
+  { href: "/", label: "Home", Icon: Home },
+  { href: "/income", label: "Income", Icon: PlusCircle },
+  { href: "/expenses", label: "Spend", Icon: Receipt },
+  { href: "/activity", label: "Activity", Icon: ListOrdered },
+  { href: "/accounts", label: "Cards", Icon: CreditCard },
+  { href: "/settlements", label: "Owed", Icon: HeartHandshake },
 ];
 
 export default function BottomNav() {
+  const path = usePathname();
   return (
-    <nav className="fixed inset-x-0 bottom-0 mx-auto max-w-md border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-md border-t border-pink-100 bg-white/90 backdrop-blur pb-[env(safe-area-inset-bottom)]">
       <ul className="flex justify-around">
-        {items.map((it) => (
-          <li key={it.href} className="flex-1">
-            <Link
-              href={it.href}
-              className="flex flex-col items-center gap-0.5 py-2 text-xs text-gray-600 active:bg-gray-100"
-            >
-              <span className="text-lg leading-none">{it.icon}</span>
-              {it.label}
-            </Link>
-          </li>
-        ))}
+        {items.map(({ href, label, Icon }) => {
+          const active = href === "/" ? path === "/" : path.startsWith(href);
+          return (
+            <li key={href} className="flex-1">
+              <Link href={href}
+                className={`flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium transition-colors ${
+                  active ? "text-brand" : "text-gray-400"
+                }`}>
+                <Icon size={22} strokeWidth={active ? 2.5 : 2} className={active ? "fill-brand/10" : ""} />
+                {label}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

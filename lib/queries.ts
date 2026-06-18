@@ -105,3 +105,41 @@ export async function getSettlementBalance() {
     return { configured: false, balance: 0 };
   }
 }
+
+export type ActivityRow = {
+  id: string;
+  date: string;
+  kind: "made" | "spent";
+  label: string;
+  cents: number;
+};
+
+const BIZ: Record<string, string> = {
+  tobacco: "Tobacco", card_night: "Card Night", dealer: "Dealer", misc: "Misc",
+};
+
+export async function getActivity(): Promise<{ live: boolean; rows: ActivityRow[] }> {
+  if (!db) {
+    return {
+      live: false,
+      rows: [
+        { id: "d1", date: "2026-06-16", kind: "made", label: "Card Night", cents: 20000 },
+        { id: "d2", date: "2026-06-15", kind: "spent", label: "utilities", cents: 8500 },
+        { id: "d3", date: "2026-06-14", kind: "made", label: "Tobacco", cents: 3000 },
+      ],
+    };
+  }
+  try {
+    const inc = (await db.select().from(schema.incomeEvents)
+      .where(eq(schema.incomeEvents.ownerId, OWNER_ID))) as (typeof schema.incomeEvents.$inferSelect)[];
+    const exp = (await db.select().from(schema.expenses)
+      .where(eq(schema.expenses.ownerId, OWNER_ID))) as (typeof schema.expenses.$inferSelect)[];
+    const rows: ActivityRow[] = [
+      ...inc.map((i) => ({ id: `i${i.id}`, date: i.occurredOn, kind: "made" as const, label: BIZ[i.business] ?? i.business, cents: i.netCents })),
+      ...exp.map((e) => ({ id: `e${e.id}`, date: e.occurredOn, kind: "spent" as const, label: e.category.replace("_", " "), cents: e.amountCents })),
+    ].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    return { live: true, rows };
+  } catch {
+    return { live: true, rows: [] };
+  }
+}

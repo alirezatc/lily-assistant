@@ -4,4 +4,9 @@
 
 :root { color-scheme: light; }
 html, body { height: 100%; }
-body { @apply bg-gray-50 text-gray-900 antialiased; }
+body {
+  @apply text-gray-800 antialiased;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #ffe3ef 0%, rgba(255,227,239,0) 60%),
+    #fff5f9;
+}

@@ -1,44 +1,31 @@
 "use client";
 import { useState } from "react";
+import NumberField from "@/components/NumberField";
 import ResultBanner from "@/components/ResultBanner";
 import StatusNote from "@/components/StatusNote";
+import PrimaryButton from "@/components/PrimaryButton";
 import { useSubmit } from "@/components/useSubmit";
+import { num, cents } from "@/lib/num";
 import { nightRakeAveraged } from "@/lib/money";
 import { saveIncome } from "@/lib/actions/income";
 
 export default function CardNightForm() {
-  const [rounds, setRounds] = useState(10);
-  const [avgPot, setAvgPot] = useState(200);
+  const [rounds, setRounds] = useState("10");
+  const [avgPot, setAvgPot] = useState("200");
   const { status, pending, run } = useSubmit();
-  const avgPotC = Math.round(avgPot * 100);
-  const rake = nightRakeAveraged(rounds, avgPotC);
-
+  const rake = nightRakeAveraged(Math.round(num(rounds)), cents(avgPot));
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        run(() =>
-          saveIncome({ business: "card_night", netCents: rake, grossCents: rake, detail: { rounds, avgPotC, mode: "averaged" } }),
-        );
-      }}
+      onSubmit={(e) => { e.preventDefault();
+        run(() => saveIncome({ business: "card_night", netCents: rake, grossCents: rake, detail: { rounds: num(rounds), avgPotC: cents(avgPot), mode: "averaged" } })); }}
       className="space-y-3"
     >
-      <label className="block text-sm font-medium text-gray-700">
-        Rounds
-        <input type="number" inputMode="numeric" className="mt-1 w-full rounded-lg border bg-white p-3 text-lg"
-          value={rounds} onChange={(e) => setRounds(Number(e.target.value))} />
-      </label>
-      <label className="block text-sm font-medium text-gray-700">
-        Average pot ($)
-        <input type="number" inputMode="decimal" className="mt-1 w-full rounded-lg border bg-white p-3 text-lg"
-          value={avgPot} onChange={(e) => setAvgPot(Number(e.target.value))} />
-      </label>
-      <p className="text-xs text-gray-500">Rake per round = max(10% of pot, $15)</p>
+      <NumberField label="Rounds" value={rounds} onChange={setRounds} placeholder="10" />
+      <NumberField label="Average pot" value={avgPot} onChange={setAvgPot} suffix="$" placeholder="200" />
+      <p className="text-xs text-gray-400">Rake per round = max(10% of pot, $15)</p>
       <ResultBanner label="Night rake" cents={rake} />
       <StatusNote status={status} />
-      <button disabled={pending} className="w-full rounded-xl bg-brand p-3 font-semibold text-brand-fg active:opacity-90 disabled:opacity-50">
-        {pending ? "Saving…" : "Save card-night income"}
-      </button>
+      <PrimaryButton pending={pending}>{pending ? "Saving…" : "Save card-night income"}</PrimaryButton>
     </form>
   );
 }
