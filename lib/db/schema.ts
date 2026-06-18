@@ -103,3 +103,9 @@ export const reminders = pgTable("reminders", {
   channel: text("channel").notNull().default("in_app"), // in_app | google_calendar | both
   status: text("status").notNull().default("scheduled"),
 });
+
+export const settings = pgTable("settings", {
+  ownerId: text("owner_id").primaryKey(),
+  businessLabels: jsonb("business_labels"), // { tobacco, card_night, dealer, misc }
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

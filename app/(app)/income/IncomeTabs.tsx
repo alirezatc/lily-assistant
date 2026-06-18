@@ -5,14 +5,13 @@ import TobaccoForm from "./TobaccoForm";
 import DealerForm from "./DealerForm";
 import MiscForm from "./MiscForm";
 
-const tabs = [
-  { key: "card", label: "Card Night", el: <CardNightForm /> },
-  { key: "tobacco", label: "Tobacco", el: <TobaccoForm /> },
-  { key: "dealer", label: "Dealer", el: <DealerForm /> },
-  { key: "misc", label: "Misc", el: <MiscForm /> },
-] as const;
-
-export default function IncomeTabs() {
+export default function IncomeTabs({ labels }: { labels: { card_night: string; tobacco: string; dealer: string; misc: string } }) {
+  const tabs = [
+    { key: "card", label: labels.card_night, el: <CardNightForm /> },
+    { key: "tobacco", label: labels.tobacco, el: <TobaccoForm /> },
+    { key: "dealer", label: labels.dealer, el: <DealerForm /> },
+    { key: "misc", label: labels.misc, el: <MiscForm /> },
+  ] as const;
   const [active, setActive] = useState<(typeof tabs)[number]["key"]>("card");
   return (
     <div className="space-y-4">

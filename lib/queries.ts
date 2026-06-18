@@ -3,6 +3,7 @@ import { db, schema } from "@/lib/db";
 import { OWNER_ID } from "@/lib/owner";
 import { daysUntilDue } from "@/lib/reminders/dates";
 import { momOwesNilou, type ExpenseRecord } from "@/lib/money";
+import { getBusinessLabels } from "@/lib/settings";
 
 export type BusinessTotal = { label: string; cents: number };
 export type DueItem = { name: string; inDays: number };
@@ -41,8 +42,9 @@ export async function getDashboard(now = new Date()) {
     for (const i of incomes) {
       if (i.occurredOn >= monthStart) totals[i.business] = (totals[i.business] ?? 0) + i.netCents;
     }
-    const monthByBusiness: BusinessTotal[] = Object.keys(BUSINESS_LABELS).map((b) => ({
-      label: BUSINESS_LABELS[b], cents: totals[b] ?? 0,
+    const labels = await getBusinessLabels();
+    const monthByBusiness: BusinessTotal[] = (Object.keys(labels) as (keyof typeof labels)[]).map((b) => ({
+      label: labels[b], cents: totals[b] ?? 0,
     }));
 
     const exps = (await db.select().from(schema.expenses)
@@ -130,12 +132,13 @@ export async function getActivity(): Promise<{ live: boolean; rows: ActivityRow[
     };
   }
   try {
+    const labels = await getBusinessLabels();
     const inc = (await db.select().from(schema.incomeEvents)
       .where(eq(schema.incomeEvents.ownerId, OWNER_ID))) as (typeof schema.incomeEvents.$inferSelect)[];
     const exp = (await db.select().from(schema.expenses)
       .where(eq(schema.expenses.ownerId, OWNER_ID))) as (typeof schema.expenses.$inferSelect)[];
     const rows: ActivityRow[] = [
-      ...inc.map((i) => ({ id: `i${i.id}`, date: i.occurredOn, kind: "made" as const, label: BIZ[i.business] ?? i.business, cents: i.netCents })),
+      ...inc.map((i) => ({ id: `i${i.id}`, date: i.occurredOn, kind: "made" as const, label: (labels as Record<string,string>)[i.business] ?? i.business, cents: i.netCents })),
       ...exp.map((e) => ({ id: `e${e.id}`, date: e.occurredOn, kind: "spent" as const, label: e.category.replace("_", " "), cents: e.amountCents })),
     ].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     return { live: true, rows };
