@@ -7,7 +7,7 @@ import NumberField from "@/components/NumberField";
 import StatusNote from "@/components/StatusNote";
 import PrimaryButton from "@/components/PrimaryButton";
 import { useSubmit } from "@/components/useSubmit";
-import { cents, num } from "@/lib/num";
+import { centsOrUndef, num } from "@/lib/num";
 import { formatCents } from "@/lib/money";
 import { updateAccount } from "@/lib/actions/account";
 
@@ -46,7 +46,7 @@ export default function CardItem({ card }: { card: Card }) {
       {edit && (
         <form
           onSubmit={(e) => { e.preventDefault();
-            run(() => updateAccount({ id: card.id, name, currentBalanceCents: cents(balance), dueDay: Math.min(31, Math.max(1, Math.round(num(dueDay)) || 1)) }), "Saved ✓"); }}
+            run(() => updateAccount({ id: card.id, name, currentBalanceCents: centsOrUndef(balance), dueDay: Math.min(31, Math.max(1, Math.round(num(dueDay)) || 1)) }), "Saved ✓"); }}
           className="mt-3 space-y-3 border-t border-pink-50 pt-3"
         >
           <label className="block text-sm font-semibold text-gray-700">

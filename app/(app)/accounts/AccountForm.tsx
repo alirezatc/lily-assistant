@@ -5,7 +5,7 @@ import NumberField from "@/components/NumberField";
 import StatusNote from "@/components/StatusNote";
 import PrimaryButton from "@/components/PrimaryButton";
 import { useSubmit } from "@/components/useSubmit";
-import { cents, num } from "@/lib/num";
+import { centsOrUndef, num } from "@/lib/num";
 import { saveAccount } from "@/lib/actions/account";
 
 export default function AccountForm() {
@@ -35,7 +35,7 @@ export default function AccountForm() {
       onSubmit={(e) => { e.preventDefault();
         run(() => saveAccount({
           name: name || "My card", type, last4: last4 || undefined,
-          creditLimitCents: cents(limit), currentBalanceCents: cents(balance),
+          creditLimitCents: centsOrUndef(limit), currentBalanceCents: centsOrUndef(balance),
           dueDay: Math.min(31, Math.max(1, Math.round(num(dueDay)) || 1)),
         }), "Card added ✓"); }}
       className="space-y-3 rounded-2xl border border-pink-100 bg-white p-4 shadow-sm"

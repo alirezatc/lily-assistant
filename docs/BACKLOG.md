@@ -82,3 +82,28 @@ Goal: the 12 cards + lines of credit live in the app and Nilou never misses a du
 ## Definition of Done (every story)
 AC met · money paths unit-tested · usable at 375px width · no regressions ·
 docs updated if the model changed · the app never moves money.
+
+---
+
+## Sprint 3 — "Make her love opening it" ✅ (shipped)
+
+Product Owner ordering (delivered): UX pain first, then delight, then security.
+
+- **S3-1 — Fix numeric inputs.** String-based MoneyField/NumberField; empty/backspace works; no stuck `0`. ✅
+- **S3-2 — Time-based greeting.** Good morning/afternoon/evening/night, local time. ✅
+- **S3-3 — Feminine redesign.** Rose/pink palette, Quicksand font, soft cards, pink favicon, modern lucide icons replacing emoji nav. ✅
+- **S3-4 — Activity table.** Income (made) + expenses (spent) merged, newest first; made/spent totals. ✅
+- **S3-5 — Cards upgrade.** Per-card nickname, edit existing cards, masked number `•••• •••• •••• 1234` with eye reveal. ✅
+- **S3-6 — Login + splash (Clerk).** Splash + sign-in/up; conditional so the app stays open until Clerk keys are set; protects all routes once enabled. 2FA-ready. ✅
+
+QA: GO, 41/41 tests, tsc clean; 4 minor items, 3 fixed (blank balance→unknown, integer-only day field, activity error flag).
+
+## Sprint 4 — "Connected & secure" (next)
+
+- **S4-1 — Turn on Clerk** (needs free Clerk account + 2 keys in Vercel) → enforce login.
+- **S4-2 — Two-factor auth** (toggle on in Clerk once live).
+- **S4-3 — Google Calendar** push for due-this-week (Google OAuth) so she gets phone notifications.
+- **S4-4 — Editable business names** (settings store + migration): rename "Tobacco" → anything; dashboard/income labels follow. (User said "in the future".)
+- **S4-5 — Activity date-range filter** (date picker).
+- **S4-6 — Optional encrypted full card number** storage (only if she wants it; security-reviewed).
+- **S4-7 — Recurring fixed costs** per property (property tax/utilities) with auto due reminders.

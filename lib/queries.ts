@@ -140,6 +140,6 @@ export async function getActivity(): Promise<{ live: boolean; rows: ActivityRow[
     ].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     return { live: true, rows };
   } catch {
-    return { live: true, rows: [] };
+    return { live: false, rows: [] };
   }
 }

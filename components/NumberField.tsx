@@ -22,7 +22,9 @@ export default function NumberField({
           placeholder={placeholder}
           onChange={(e) => {
             const v = e.target.value;
-            if (v === "" || /^\d*\.?\d*$/.test(v)) {
+            const intMode = min != null || max != null;
+            const ok = v === "" || (intMode ? /^\d*$/.test(v) : /^\d*\.?\d*$/.test(v));
+            if (ok) {
               if (v === "") return onChange(v);
               let n = parseFloat(v);
               if (min != null && n < min) return onChange(String(min));
