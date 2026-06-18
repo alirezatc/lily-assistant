@@ -2,17 +2,18 @@ import Link from "next/link";
 import { formatCents } from "@/lib/money";
 import { getDashboard } from "@/lib/queries";
 import Greeting from "@/components/Greeting";
+import { getFirstName } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
-  const data = await getDashboard();
+  const [data, firstName] = await Promise.all([getDashboard(), getFirstName()]);
   const total = data.monthByBusiness.reduce((s, b) => s + b.cents, 0);
 
   return (
     <main className="space-y-5 p-4">
       <header className="pt-2">
-        <Greeting name="Nilou" />
+        <Greeting name={firstName} />
         <p className="text-sm text-gray-400">Here&apos;s where things stand.</p>
       </header>
 

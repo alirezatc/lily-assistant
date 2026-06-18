@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { OWNER_ID } from "@/lib/owner";
+import { getOwnerId } from "@/lib/owner";
 import type { SaveResult } from "./types";
 
 export interface AccountInput {
@@ -22,9 +22,8 @@ export interface AccountInput {
 export async function saveAccount(input: AccountInput): Promise<SaveResult> {
   if (!db) return { ok: false, error: "no_db" };
   try {
-    await db.insert(schema.creditAccounts).values({ ownerId: OWNER_ID, ...input });
-    revalidatePath("/accounts");
-    revalidatePath("/");
+    await db.insert(schema.creditAccounts).values({ ownerId: await getOwnerId(), ...input });
+    revalidatePath("/accounts"); revalidatePath("/");
     return { ok: true };
   } catch {
     return { ok: false, error: "db_error" };
@@ -44,12 +43,11 @@ export interface AccountUpdate {
 export async function updateAccount(input: AccountUpdate): Promise<SaveResult> {
   if (!db) return { ok: false, error: "no_db" };
   try {
+    const ownerId = await getOwnerId();
     const { id, ...rest } = input;
-    await db.update(schema.creditAccounts)
-      .set(rest)
-      .where(and(eq(schema.creditAccounts.id, id), eq(schema.creditAccounts.ownerId, OWNER_ID)));
-    revalidatePath("/accounts");
-    revalidatePath("/");
+    await db.update(schema.creditAccounts).set(rest)
+      .where(and(eq(schema.creditAccounts.id, id), eq(schema.creditAccounts.ownerId, ownerId)));
+    revalidatePath("/accounts"); revalidatePath("/");
     return { ok: true };
   } catch {
     return { ok: false, error: "db_error" };

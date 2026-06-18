@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { OWNER_ID } from "@/lib/owner";
+import { getOwnerId } from "@/lib/owner";
 import { daysUntilDue } from "@/lib/reminders/dates";
 import { momOwesNilou, type ExpenseRecord } from "@/lib/money";
 import { getBusinessLabels } from "@/lib/settings";
@@ -35,9 +35,10 @@ function demoDashboard() {
 export async function getDashboard(now = new Date()) {
   if (!db) return demoDashboard();
   try {
+    const ownerId = await getOwnerId();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
     const incomes = (await db.select().from(schema.incomeEvents)
-      .where(eq(schema.incomeEvents.ownerId, OWNER_ID))) as (typeof schema.incomeEvents.$inferSelect)[];
+      .where(eq(schema.incomeEvents.ownerId, ownerId))) as (typeof schema.incomeEvents.$inferSelect)[];
     const totals: Record<string, number> = {};
     for (const i of incomes) {
       if (i.occurredOn >= monthStart) totals[i.business] = (totals[i.business] ?? 0) + i.netCents;
@@ -48,9 +49,9 @@ export async function getDashboard(now = new Date()) {
     }));
 
     const exps = (await db.select().from(schema.expenses)
-      .where(eq(schema.expenses.ownerId, OWNER_ID))) as (typeof schema.expenses.$inferSelect)[];
+      .where(eq(schema.expenses.ownerId, ownerId))) as (typeof schema.expenses.$inferSelect)[];
     const reps = (await db.select().from(schema.repayments)
-      .where(eq(schema.repayments.ownerId, OWNER_ID))) as (typeof schema.repayments.$inferSelect)[];
+      .where(eq(schema.repayments.ownerId, ownerId))) as (typeof schema.repayments.$inferSelect)[];
     const records: ExpenseRecord[] = exps.map((e) => ({
       amountCents: e.amountCents,
       responsibility: e.responsibility as ExpenseRecord["responsibility"],
@@ -60,7 +61,7 @@ export async function getDashboard(now = new Date()) {
     const momOwes = momOwesNilou(records, reps.map((r) => ({ amountCents: r.amountCents })));
 
     const accounts = (await db.select().from(schema.creditAccounts)
-      .where(eq(schema.creditAccounts.ownerId, OWNER_ID))) as (typeof schema.creditAccounts.$inferSelect)[];
+      .where(eq(schema.creditAccounts.ownerId, ownerId))) as (typeof schema.creditAccounts.$inferSelect)[];
     const dueSoon: DueItem[] = accounts
       .filter((a) => a.dueDay)
       .map((a) => ({
@@ -80,8 +81,9 @@ export async function getDashboard(now = new Date()) {
 export async function getAccounts() {
   if (!db) return [];
   try {
+    const ownerId = await getOwnerId();
     const rows = (await db.select().from(schema.creditAccounts)
-      .where(eq(schema.creditAccounts.ownerId, OWNER_ID))) as (typeof schema.creditAccounts.$inferSelect)[];
+      .where(eq(schema.creditAccounts.ownerId, ownerId))) as (typeof schema.creditAccounts.$inferSelect)[];
     return rows.sort((a, b) => (a.dueDay ?? 99) - (b.dueDay ?? 99));
   } catch {
     return [];
@@ -91,10 +93,11 @@ export async function getAccounts() {
 export async function getSettlementBalance() {
   if (!db) return { configured: false, balance: 0 };
   try {
+    const ownerId = await getOwnerId();
     const exps = (await db.select().from(schema.expenses)
-      .where(eq(schema.expenses.ownerId, OWNER_ID))) as (typeof schema.expenses.$inferSelect)[];
+      .where(eq(schema.expenses.ownerId, ownerId))) as (typeof schema.expenses.$inferSelect)[];
     const reps = (await db.select().from(schema.repayments)
-      .where(eq(schema.repayments.ownerId, OWNER_ID))) as (typeof schema.repayments.$inferSelect)[];
+      .where(eq(schema.repayments.ownerId, ownerId))) as (typeof schema.repayments.$inferSelect)[];
     const records: ExpenseRecord[] = exps.map((e) => ({
       amountCents: e.amountCents,
       responsibility: e.responsibility as ExpenseRecord["responsibility"],
@@ -132,11 +135,12 @@ export async function getActivity(): Promise<{ live: boolean; rows: ActivityRow[
     };
   }
   try {
+    const ownerId = await getOwnerId();
     const labels = await getBusinessLabels();
     const inc = (await db.select().from(schema.incomeEvents)
-      .where(eq(schema.incomeEvents.ownerId, OWNER_ID))) as (typeof schema.incomeEvents.$inferSelect)[];
+      .where(eq(schema.incomeEvents.ownerId, ownerId))) as (typeof schema.incomeEvents.$inferSelect)[];
     const exp = (await db.select().from(schema.expenses)
-      .where(eq(schema.expenses.ownerId, OWNER_ID))) as (typeof schema.expenses.$inferSelect)[];
+      .where(eq(schema.expenses.ownerId, ownerId))) as (typeof schema.expenses.$inferSelect)[];
     const rows: ActivityRow[] = [
       ...inc.map((i) => ({ id: `i${i.id}`, date: i.occurredOn, kind: "made" as const, label: (labels as Record<string,string>)[i.business] ?? i.business, cents: i.netCents })),
       ...exp.map((e) => ({ id: `e${e.id}`, date: e.occurredOn, kind: "spent" as const, label: e.category.replace("_", " "), cents: e.amountCents })),

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { OWNER_ID } from "@/lib/owner";
+import { getOwnerId } from "@/lib/owner";
 
 export type BusinessKey = "tobacco" | "card_night" | "dealer" | "misc";
 
@@ -11,12 +11,12 @@ export const DEFAULT_LABELS: Record<BusinessKey, string> = {
   misc: "Misc",
 };
 
-/** Read business label overrides, merged over defaults. Always safe. */
 export async function getBusinessLabels(): Promise<Record<BusinessKey, string>> {
   if (!db) return { ...DEFAULT_LABELS };
   try {
+    const ownerId = await getOwnerId();
     const rows = (await db.select().from(schema.settings)
-      .where(eq(schema.settings.ownerId, OWNER_ID))) as (typeof schema.settings.$inferSelect)[];
+      .where(eq(schema.settings.ownerId, ownerId))) as (typeof schema.settings.$inferSelect)[];
     const override = (rows[0]?.businessLabels ?? {}) as Partial<Record<BusinessKey, string>>;
     const merged = { ...DEFAULT_LABELS };
     for (const k of Object.keys(DEFAULT_LABELS) as BusinessKey[]) {
