@@ -16,6 +16,11 @@ export const people = pgTable("people", {
   id: serial("id").primaryKey(),
   ownerId: text("owner_id").notNull(), // Clerk user id (household owner)
   name: text("name").notNull(),
+  // Multi-member household (Sprint 7+). isSelf marks the owner's own member
+  // ("me"); active allows soft-hiding without losing historical references.
+  isSelf: boolean("is_self").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  color: text("color"), // optional UI accent
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -48,6 +53,9 @@ export const expenses = pgTable("expenses", {
   responsibility: responsibilityEnum("responsibility").notNull(),
   paidBy: payerEnum("paid_by").notNull().default("nilou"),
   householdMomShareBp: integer("household_mom_share_bp"), // basis points, null -> default
+  // Multi-member household (Sprint 7+). paidByPersonId supersedes the paidBy
+  // enum once data is migrated; nullable during the additive transition.
+  paidByPersonId: integer("paid_by_person_id"),
   propertyId: integer("property_id"),
   recurringId: integer("recurring_id"),
   notes: text("notes"),
@@ -72,6 +80,20 @@ export const repayments = pgTable("repayments", {
   amountCents: integer("amount_cents").notNull(),
   occurredOn: date("occurred_on").notNull(),
   notes: text("notes"),
+  // Multi-member household (Sprint 7+). Directional repayment between members;
+  // supersedes fromPerson once migrated. Nullable during transition.
+  fromPersonId: integer("from_person_id"),
+  toPersonId: integer("to_person_id"),
+});
+
+// Per-member responsibility split for an expense (Sprint 7+). Sum of shareBp
+// across an expense should be 10000 (100%). One row per responsible member.
+export const expenseShares = pgTable("expense_shares", {
+  id: serial("id").primaryKey(),
+  ownerId: text("owner_id").notNull(), // multi-tenant scope (Clerk user id)
+  expenseId: integer("expense_id").notNull(),
+  personId: integer("person_id").notNull(),
+  shareBp: integer("share_bp").notNull(), // basis points of the expense
 });
 
 export const creditAccounts = pgTable("credit_accounts", {
